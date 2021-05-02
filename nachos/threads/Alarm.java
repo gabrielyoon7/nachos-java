@@ -27,7 +27,8 @@ public class Alarm {
      * that should be run.
      */
     public void timerInterrupt() {
-	KThread.currentThread().yield();
+   	System.out.println("Alarm 클래스에서 timerInterrupt 실행");
+    	KThread.currentThread().yield();
     }
 
     /**
