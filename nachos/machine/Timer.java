@@ -60,6 +60,7 @@ public final class Timer {
     }
 
     private void timerInterrupt() {
+	System.out.println("Timer 클래스에서 timerInterrupt 실행");
 	scheduleInterrupt();
 	scheduleAutoGraderInterrupt();
 
