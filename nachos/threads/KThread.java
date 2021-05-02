@@ -401,10 +401,38 @@ public class KThread {
      * Tests whether this module is working.
      */
     public static void selfTest() {
-	Lib.debug(dbgThread, "Enter KThread.selfTest");
-	
-	new KThread(new PingTest(1)).setName("forked thread").fork();
-	new PingTest(0).run();
+    	Lib.debug(dbgThread, "Enter KThread.selfTest");
+    	
+    	/*new KThread(new PingTest(1)).setName("forked thread").fork();
+    	new PingTest(0).run();*/
+        Alarm alarm = new Alarm();
+        KThread T1 = new KThread(new Runnable() {
+        	public void run() {
+        		System.out.println("T1 : forked at "+Machine.timer().getTime());
+        		alarm.waitUntil(1100);
+        		System.out.println("T1 : finished at "+Machine.timer().getTime());
+        	}
+        }).setName("Thread1");
+        
+        KThread T2 = new KThread(new Runnable() {
+        	public void run() {
+        		System.out.println("T2 : forked at "+Machine.timer().getTime());
+        		alarm.waitUntil(100);
+        		System.out.println("T2 : finished at "+Machine.timer().getTime());
+        	}
+        }).setName("Thread2");
+        
+        KThread T3 = new KThread(new Runnable() {
+        	public void run() {
+        		System.out.println("T3 : forked at "+Machine.timer().getTime());
+        		alarm.waitUntil(500);
+        		System.out.println("T3 : finished at "+Machine.timer().getTime());
+        	}
+        }).setName("Thread3");
+        
+        T1.fork();
+        T2.fork();
+        T3.fork();
     }
 
     private static final char dbgThread = 't';
