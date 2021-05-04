@@ -408,31 +408,22 @@ public class KThread {
         Alarm alarm = new Alarm();
         KThread T1 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("T1 : forked at "+Machine.timer().getTime());
-        		alarm.waitUntil(1100);
-        		System.out.println("T1 : finished at "+Machine.timer().getTime());
+        		System.out.println("T1 호출 전 시간: "+Machine.timer().getTime());
+        		alarm.waitUntil(400);
+        		System.out.println("T1이 호출 후 실행될 때의 시간: "+Machine.timer().getTime());
         	}
         }).setName("Thread1");
         
         KThread T2 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("T2 : forked at "+Machine.timer().getTime());
-        		alarm.waitUntil(100);
-        		System.out.println("T2 : finished at "+Machine.timer().getTime());
+        		System.out.println("T2 호출 전 시간: "+Machine.timer().getTime());
+        		alarm.waitUntil(700);
+        		System.out.println("T2이 호출 후 실행될 때의 시간:"+Machine.timer().getTime());
         	}
         }).setName("Thread2");
         
-        KThread T3 = new KThread(new Runnable() {
-        	public void run() {
-        		System.out.println("T3 : forked at "+Machine.timer().getTime());
-        		alarm.waitUntil(500);
-        		System.out.println("T3 : finished at "+Machine.timer().getTime());
-        	}
-        }).setName("Thread3");
-        
         T1.fork();
         T2.fork();
-        T3.fork();
     }
 
     private static final char dbgThread = 't';
