@@ -31,7 +31,7 @@ public class Alarm {
      * thread to yield, forcing a context switch if there is another thread
      * that should be run.
      */
-    public void timerInterrupt() { //강제로 500틱때마다 강제로 뺏음
+    public void timerInterrupt() { //500틱때마다 조건 검사
        System.out.println("Alarm 클래스에서 timerInterrupt 실행");
        //KThread.currentThread().yield();
 
@@ -39,9 +39,8 @@ public class Alarm {
       while (it.hasNext()) {
          KThread k = it.next();
          if (waitingQueue.get(k) <= Machine.timer().getTime()) {
-            k.ready(); // 대기 시간이 지금이면 스레드 준비
+            k.ready();
             it.remove();
-            // 스레드 1 개를 제거 했으므로 1로 돌아가기
          }
       }
       KThread.currentThread().yield();
@@ -69,12 +68,11 @@ public class Alarm {
           return;
    //while (wakeTime > Machine.timer().getTime()) {
    // KThread.yield();
-      Machine.interrupt (). disable ();
+      Machine.interrupt().disable ();//스레드 sleep 상태를 만들기 전에 인터럽트를 미리 disable상태로 만듦
       waitingQueue.put(KThread.currentThread(), wakeTime);
-      KThread.sleep ();
+      KThread.sleep();
      System.out.println ( "실제 wakeTime :"+ Machine.timer (). getTime ());
-      Machine.interrupt (). enable ();
+      Machine.interrupt().enable (); //sleep후 인터럽트 enable상태로 변경 
    }
     HashMap<KThread, Long> waitingQueue = new HashMap<>();
 }
-
