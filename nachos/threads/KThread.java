@@ -402,28 +402,25 @@ public class KThread {
      */
     public static void selfTest() {
     	Lib.debug(dbgThread, "Enter KThread.selfTest");
-    	
-    	/*new KThread(new PingTest(1)).setName("forked thread").fork();
-    	new PingTest(0).run();*/
         Alarm alarm = new Alarm();
-        KThread T1 = new KThread(new Runnable() {
+        KThread thread1 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("T1 호출 전 시간: "+Machine.timer().getTime());
+        		System.out.println("thread1 호출 전 시간: "+Machine.timer().getTime());
         		alarm.waitUntil(400);
-        		System.out.println("T1이 호출 후 실행될 때의 시간: "+Machine.timer().getTime());
+        		System.out.println("thread1이 호출 후 실행될 때의 시간: "+Machine.timer().getTime());
         	}
-        }).setName("Thread1");
+        }).setName("thread1");
         
-        KThread T2 = new KThread(new Runnable() {
+        KThread thread2 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("T2 호출 전 시간: "+Machine.timer().getTime());
+        		System.out.println("thread2 호출 전 시간: "+Machine.timer().getTime());
         		alarm.waitUntil(700);
-        		System.out.println("T2이 호출 후 실행될 때의 시간:"+Machine.timer().getTime());
+        		System.out.println("thread2이 호출 후 실행될 때의 시간:"+Machine.timer().getTime());
         	}
-        }).setName("Thread2");
-        
-        T1.fork();
-        T2.fork();
+        }).setName("thread2");
+
+		thread1.fork();
+		thread2.fork();
     }
 
     private static final char dbgThread = 't';
