@@ -31,18 +31,18 @@ public class Lock {
      * this lock.
      */
     public void acquire() {
-	Lib.assertTrue(!isHeldByCurrentThread());
+	Lib.assertTrue(!isHeldByCurrentThread()); //현재 쓰레드가 아니라면 
 
-	boolean intStatus = Machine.interrupt().disable();
-	KThread thread = KThread.currentThread();
+	boolean intStatus = Machine.interrupt().disable(); //인터럽트를 막아두고
+	KThread thread = KThread.currentThread(); //현재 쓰레드를 담아서
 
-	if (lockHolder != null) {
-	    waitQueue.waitForAccess(thread);
-	    KThread.sleep();
+	if (lockHolder != null) { //Lock을 누구도 가지고 있지 않다면
+	    waitQueue.waitForAccess(thread); // waitqueue에 접근 승인을 기다리게 달아놓고
+	    KThread.sleep(); // 쓰레드를 재운다 - 어떤 쓰레드를 재우는 거지?
 	}
 	else {
-	    waitQueue.acquire(thread);
-	    lockHolder = thread;
+	    waitQueue.acquire(thread); //Lock을 누군가 가지고 있다면
+	    lockHolder = thread;//해당 쓰레드가 Lock을 갖도록 변경해준다.
 	}
 
 	Lib.assertTrue(lockHolder == thread);
@@ -58,8 +58,8 @@ public class Lock {
 
 	boolean intStatus = Machine.interrupt().disable();
 
-	if ((lockHolder = waitQueue.nextThread()) != null)
-	    lockHolder.ready();
+	if ((lockHolder = waitQueue.nextThread()) != null) // Lock을 누군가 가지고 있다면
+	    lockHolder.ready(); // 그 쓰레드를 ready 상태로 변경 
 	
 	Machine.interrupt().restore(intStatus);
     }
@@ -69,7 +69,7 @@ public class Lock {
      *
      * @return	true if the current thread holds this lock.
      */
-    public boolean isHeldByCurrentThread() {
+    public boolean isHeldByCurrentThread() { // Lockholder 쓰레드가 현재 쓰레드면 true 반환???
 	return (lockHolder == KThread.currentThread());
     }
 

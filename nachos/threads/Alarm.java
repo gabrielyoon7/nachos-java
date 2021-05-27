@@ -20,7 +20,7 @@ public class Alarm {
      * alarm.
      */
     public Alarm() {
-   Machine.timer().setInterruptHandler(new Runnable() {
+   Machine.timer().setInterruptHandler(new Runnable() { //timer -> ÇÏµå¿ş¾î ½Ã°£À» ¹ŞÀ½
       public void run() { timerInterrupt(); }
        });
     }
@@ -31,17 +31,16 @@ public class Alarm {
      * thread to yield, forcing a context switch if there is another thread
      * that should be run.
      */
-    public void timerInterrupt() { //ê°•ì œë¡œ 500í‹±ë•Œë§ˆë‹¤ ê°•ì œë¡œ ëºìŒ
-       System.out.println("Alarm í´ë˜ìŠ¤ì—ì„œ timerInterrupt ì‹¤í–‰");
+    public void timerInterrupt() { // 500tick ¸¶´Ù °Ë»ç¸¦ ÅëÇØ ´ë±â ÀÎÅÍ·´Æ® Ã³¸®
+       //System.out.println("Alarm Å¬·¡½º¿¡¼­ timerInterrupt ½ÇÇà");
        //KThread.currentThread().yield();
 
       Iterator<KThread> it = waitingQueue.keySet().iterator();
       while (it.hasNext()) {
          KThread k = it.next();
-         if (waitingQueue.get(k) <= Machine.timer().getTime()) {
-            k.ready(); // ëŒ€ê¸° ì‹œê°„ì´ ì§€ê¸ˆì´ë©´ ìŠ¤ë ˆë“œ ì¤€ë¹„
-            it.remove();
-            // ìŠ¤ë ˆë“œ 1 ê°œë¥¼ ì œê±° í–ˆìœ¼ë¯€ë¡œ 1ë¡œ ëŒì•„ê°€ê¸°
+         if (waitingQueue.get(k) <= Machine.timer().getTime()) { //´ë±â ÀÎÅÍ·´Æ®ÀÇ waketimeÀÌ Áö³µ´Ù¸é
+            k.ready(); // ready »óÅÂ¿¡ ³Ö°í 
+            it.remove(); // ´ë±â ÀÎÅÍ·´Æ®¿¡¼­ Á¦°Å
          }
       }
       KThread.currentThread().yield();
@@ -62,19 +61,19 @@ public class Alarm {
      * @see   nachos.machine.Timer#getTime()
      */
     public void waitUntil(long x) {
-   // for now, cheat just to get something working (busy waiting is bad)
-       long wakeTime = Machine.timer().getTime() + x;
+    	// for now, cheat just to get something working (busy waiting is bad)
+    	long wakeTime = Machine.timer().getTime() + x;
        
-       if(x<=0)
-          return;
-   //while (wakeTime > Machine.timer().getTime()) {
-   // KThread.yield();
-      Machine.interrupt (). disable ();
-      waitingQueue.put(KThread.currentThread(), wakeTime);
-      KThread.sleep ();
-     System.out.println ( "ì‹¤ì œ wakeTime :"+ Machine.timer (). getTime ());
-      Machine.interrupt (). enable ();
-   }
-    HashMap<KThread, Long> waitingQueue = new HashMap<>();
+    	if(x<=0)
+    		return;
+    	//while (wakeTime > Machine.timer().getTime()) {
+    	// KThread.yield();
+    	Machine.interrupt().disable();
+    	waitingQueue.put(KThread.currentThread(), wakeTime);
+    	KThread.sleep();
+    	System.out.println ("½ÇÁ¦ wakeTime :"+ Machine.timer(). getTime());
+    	Machine.interrupt().enable();
+    }
+    
+   HashMap<KThread, Long> waitingQueue = new HashMap<>();
 }
-

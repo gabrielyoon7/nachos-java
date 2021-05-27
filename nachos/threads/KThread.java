@@ -1,5 +1,7 @@
 package nachos.threads;
 
+import java.util.ArrayList;
+
 import nachos.machine.*;
 
 /**
@@ -48,7 +50,7 @@ public class KThread {
 	}	    
 	else {
 	    readyQueue = ThreadedKernel.scheduler.newThreadQueue(false);
-	    readyQueue.acquire(this);	    
+	    readyQueue.acquire(this);	
 
 	    currentThread = this;
 	    tcb = TCB.currentTCB();
@@ -141,7 +143,7 @@ public class KThread {
 	
 	Lib.debug(dbgThread,
 		  "Forking thread: " + toString() + " Runnable: " + target);
-
+	System.out.println("Forking thread: " + toString() + " Runnable: " + target);
 	boolean intStatus = Machine.interrupt().disable();
 
 	tcb.start(new Runnable() {
@@ -272,6 +274,8 @@ public class KThread {
      * call is not guaranteed to return. This thread must not be the current
      * thread.
      */
+    // °´Ã¼ÀÇ ¾²·¹µå°¡ ³¡³¯ ¶§±îÁö ±â´Ù¸°´Ù. ¸¸¾à ÀÌ ¾²·¹µå°¡ ÀÌ¹Ì ³¡³µ´Ù¸é Áï½Ã returnÇÑ´Ù. ÀÌ ¸Ş¼Òµå´Â ÇÑ ¹ø¸¸ È£ÃâµÇ¸ç µÎ ¹øÂ° È£ÃâºÎÅÍ´Â returnÀ» º¸ÀåÇÏÁö ¾ÊÀ½
+    // °´Ã¼ÀÇ ¾²·¹µå´Â ÇöÀç ¾²·¹µå°¡ ¾Æ´Ï¿©¾ß ÇÔ
     public void join() {
 	Lib.debug(dbgThread, "Joining to thread: " + toString());
 
@@ -402,27 +406,88 @@ public class KThread {
      */
     public static void selfTest() {
     	Lib.debug(dbgThread, "Enter KThread.selfTest");
-        Alarm alarm = new Alarm();
+    	
+    	new KThread(new PingTest(1)).setName("forked thread").fork();
+    	new PingTest(0).run();
+    	
+      /*' Alarm alarm = new Alarm();
         KThread thread1 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("thread1 í˜¸ì¶œ ì „ ì‹œê°„: "+Machine.timer().getTime());
+        		System.out.println("thread1 È£Ãâ Àü ½Ã°£: "+Machine.timer().getTime());
         		alarm.waitUntil(400);
-        		System.out.println("thread1ì´ í˜¸ì¶œ í›„ ì‹¤í–‰ë  ë•Œì˜ ì‹œê°„: "+Machine.timer().getTime());
+        		System.out.println("thread1ÀÌ È£Ãâ ÈÄ ½ÇÇàµÉ ¶§ÀÇ ½Ã°£: "+Machine.timer().getTime());
         	}
         }).setName("thread1");
         
         KThread thread2 = new KThread(new Runnable() {
         	public void run() {
-        		System.out.println("thread2 í˜¸ì¶œ ì „ ì‹œê°„: "+Machine.timer().getTime());
+        		System.out.println("thread2 È£Ãâ Àü ½Ã°£: "+Machine.timer().getTime());
         		alarm.waitUntil(700);
-        		System.out.println("thread2ì´ í˜¸ì¶œ í›„ ì‹¤í–‰ë  ë•Œì˜ ì‹œê°„:"+Machine.timer().getTime());
+        		System.out.println("thread2ÀÌ È£Ãâ ÈÄ ½ÇÇàµÉ ¶§ÀÇ ½Ã°£:"+Machine.timer().getTime());
         	}
         }).setName("thread2");
-
-		thread1.fork();
-		thread2.fork();
+        
+        thread1.fork();
+        thread2.fork();*/
     }
+    
+    private static void joinTest1() {
+		KThread child1 = new KThread( new Runnable () {
+			public void run() {
+				System.out.println("I (heart) Nachos!");
+			}
+		});
+		
+		child1.setName("child1").fork();
 
+		// We want the child to finish before we call join.  Although
+		// our solutions to the problems cannot busy wait, our test
+		// programs can!
+
+		for (int i = 0; i < 5; i++) {
+			System.out.println ("busy...");
+			KThread.currentThread().yield();
+		}
+
+		child1.join();
+		System.out.println("After joining, child1 should be finished.");
+		System.out.println("is it? " + (child1.status == statusFinished));
+		Lib.assertTrue((child1.status == statusFinished), " Expected child1 to be finished.");
+    }
+    
+    private void Join() {
+    	/*ÀÌ Joinqueue¸¦ ÃÊ±âÈ­ ÇØÁÖ´Â ÀÛ¾÷ÀÌ ÇÊ¿äÇÔ
+		 * ÀÎÅÍ·´Æ®¸¦ ¸·¾ÆÁÖ°í 
+		 * Join ¸Ş¼Òµå¸¦ È£ÃâÇÏ¸é ¸Å°³º¯¼ö·Î Àü´Ş¹ŞÀº ¾²·¹µå¿¡ ÇØ´ç ¾²·¹µå¸¦ ´Ş¾Æ³õ´Â ¿ªÇÒÀ» ¼öÇà(Joinqueue¿¡ ³Ö±â)
+		 * ºÎ¸ğ ¾²·¹µå°¡ ¼öÇàÀ» ¸¶ÃÆÀ» ¶§ ±â´Ù¸®´Â ÀÚ½Ä ¾²·¹µå¸¦ ready»óÅÂ·Î º¯°æÇØ¼­ ½ÇÇàÇÏµµ·Ï ÇØÁà¾ßÇÔ*/
+    	/*
+    	 * - ÀÌ¹Ì A ¾²·¹µå°¡ Á¾·áÇÑ °æ¿ì B ¾²·¹µå´Â blockingµÇÁö ¾Ê°í ¹Ù·Î returnÇÔ
+		 * ±×·¸Áö ¾ÊÀº °æ¿ì, B ¾²·¹µå´Â A ¾²·¹µå°¡ Á¾·áÇÒ ¶§±îÁö blockingµÇ¸ç(while¹®À¸·Î ±â´Ù¸²), A ¾²·¹µå°¡ Á¾·áµÈ ÈÄ(while Å»Ãâ Á¶°Ç)
+	  	 * join ¸Ş½îµå¿¡¼­ returnµÇ¾î ³ª¸ÓÁö ÀÛ¾÷À» ¼öÇàÇÔ(¾²·¹µå ¹İÈ¯?)*/
+    	
+    	Lib.debug(dbgThread, "Joining to thread: " + toString());
+
+        Lib.assertTrue(this != currentThread);
+        if (this.status == statusFinished)
+           return;
+        boolean intStatus = Machine.interrupt().disable();
+        joined_thread.add((KThread) currentThread);
+        currentThread.sleep();
+         if (toBeDestroyed != null) {
+                //Ãß°¡ ÄÚµå ½ÃÀÛ
+                while(!toBeDestroyed.joined_thread.isEmpty())
+                {   
+                    KThread TempThread;
+                    TempThread= (KThread) toBeDestroyed.joined_thread.get(0);
+                    toBeDestroyed.joined_thread.remove(0);
+                    TempThread.ready();
+                }
+         }
+        
+        Machine.interrupt().restore(intStatus);
+    	
+    }
+	
     private static final char dbgThread = 't';
 
     /**
@@ -456,6 +521,7 @@ public class KThread {
     /** Number of times the KThread constructor was called. */
     private static int numCreated = 0;
 
+    private static ArrayList joined_thread = new ArrayList(); //ÀÚ½Ä ¾²·¹µå ´ã¾Æ³õÀ» °ø°£ »ı¼º
     private static ThreadQueue readyQueue = null;
     private static KThread currentThread = null;
     private static KThread toBeDestroyed = null;

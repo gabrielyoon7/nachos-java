@@ -59,9 +59,9 @@ public class Condition {
      *				<tt>wake()</tt>, or <tt>wakeAll()</tt>.
      */
     public Condition(Lock conditionLock) {
-	this.conditionLock = conditionLock;
+    	this.conditionLock = conditionLock;
 
-	waitQueue = new LinkedList<Semaphore>();
+    	waitQueue = new LinkedList<Semaphore>();
     }
 
     /**
@@ -76,26 +76,26 @@ public class Condition {
      * semaphore, so thre is no chance the sleeper will miss the wake-up, even
      * though the lock is released before caling <tt>P()</tt>.
      */
-    public void sleep() {
-	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
-
-	Semaphore waiter = new Semaphore(0);
-	waitQueue.add(waiter);
-
-	conditionLock.release();
-	waiter.P();
-	conditionLock.acquire();	
+    public void sleep() { //conditionLock이 현재 쓰레드임을 확인하고
+		Lib.assertTrue(conditionLock.isHeldByCurrentThread());
+	
+		Semaphore waiter = new Semaphore(0); //세마포어 생성
+		waitQueue.add(waiter); //세마포어를 대기큐에 추가
+	
+		conditionLock.release(); //키 반납
+		waiter.P(); // 해당 세마포어가 0이 아니게 될 때까지 wait
+		conditionLock.acquire(); //키 얻기
     }
 
     /**
      * Wake up at most one thread sleeping on this condition variable. The
      * current thread must hold the associated lock.
      */
-    public void wake() {
-	Lib.assertTrue(conditionLock.isHeldByCurrentThread());
-
-	if (!waitQueue.isEmpty())
-	    ((Semaphore) waitQueue.removeFirst()).V();
+    public void wake() { //conditionLock이 현재 쓰레드임을 확인하고
+		Lib.assertTrue(conditionLock.isHeldByCurrentThread());
+	
+		if (!waitQueue.isEmpty()) // 대기큐에 들어있는 쓰레드가 있다면(waiting 상태 쓰레드가 존재한다면)
+		    ((Semaphore) waitQueue.removeFirst()).V(); //
     }
 
     /**

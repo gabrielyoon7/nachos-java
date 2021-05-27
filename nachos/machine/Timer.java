@@ -22,22 +22,22 @@ public final class Timer {
      *				machine.
      */
     public Timer(Privilege privilege) {
-	System.out.print(" timer");
+		System.out.print(" timer\n");
+		
+		this.privilege = privilege;
+		
+		timerInterrupt = new Runnable() {
+			public void run() { timerInterrupt(); }
+		};
+		
+		autoGraderInterrupt = new Runnable() {
+			public void run() {
+			    Machine.autoGrader().timerInterrupt(Timer.this.privilege,
+								lastTimerInterrupt);
+			}
+		};
 	
-	this.privilege = privilege;
-	
-	timerInterrupt = new Runnable() {
-		public void run() { timerInterrupt(); }
-	    };
-	
-	autoGraderInterrupt = new Runnable() {
-		public void run() {
-		    Machine.autoGrader().timerInterrupt(Timer.this.privilege,
-							lastTimerInterrupt);
-		}
-	    };
-
-	scheduleInterrupt();
+		scheduleInterrupt();
     }
 
     /**
@@ -46,8 +46,8 @@ public final class Timer {
      *
      * @param	handler		the timer interrupt handler.
      */
-    public void setInterruptHandler(Runnable handler) {
-	this.handler = handler;
+    public void setInterruptHandler(Runnable handler) { //ÀÎÅÍ·´Æ® ÇÚµé·¯ ÃÊ±âÈ­
+    	this.handler = handler;
     }
 
     /**
@@ -56,29 +56,31 @@ public final class Timer {
      * @return	the number of clock ticks since Nachos started.
      */
     public long getTime() {
-	return privilege.stats.totalTicks;
+    	return privilege.stats.totalTicks; //´ÏÃÊ½º ÃÑ ½ÇÇà tick(½Ã°£) °Ù-¡Ú
     }
 
-    private void timerInterrupt() {
-	System.out.println("Timer í´ë˜ìŠ¤ì—ì„œ timerInterrupt ì‹¤í–‰");
-	scheduleInterrupt();
-	scheduleAutoGraderInterrupt();
-
-	lastTimerInterrupt = getTime();
-
-	if (handler != null)
-	    handler.run();
+    private void timerInterrupt() { //ÀÎÅÍ·´Æ® ¼­ºñ½º ·çÆ¾ ½ÇÇà ¸Ş¼Òµå
+    	//System.out.println("Timer Å¬·¡½º¿¡¼­ timerInterrupt ½ÇÇà");
+		scheduleInterrupt(); //ÀÎÅÍ·´Æ® Å¬·¡½ºÀÇ ½ºÄÉÁì ¸Ş¼Òµå È£Ãâ
+		scheduleAutoGraderInterrupt();
+	
+		lastTimerInterrupt = getTime();//ÇöÀç ³ªÃÊ½º ½ÇÇà ½Ã°£(tick) È®ÀÎ
+	
+		if (handler != null) //ÀÎÅÍ·´Æ® ÇÚµé·¯°¡(ÀÎÅÍ·´Æ® ¼­ºñ½º ·çÆ¾ÀÌ) Á¸ÀçÇÏ¸é - ¾Ë¶÷ Å¬·¡½ºÀÇ Å¸ÀÌ¸Ó ÀÎÅÍ·´Æ® ¸Ş¼Òµå
+		    handler.run(); //ÀÎÅÍ·´Æ® ÇÚµé·¯(ÀÎÅÍ·´Æ® ¼­ºñ½º ·çÆ¾) ½ÇÇà
     }
 
-    private void scheduleInterrupt() {
-	int delay = Stats.TimerTicks;
-	delay += Lib.random(delay/10) - (delay/20);
+    private void scheduleInterrupt() { //½ºÄÉÁì¸µ¿¡ ÀÎÅÍ·´Æ® Á¤º¸ Àü´Ş ¸Ş¼Òµå
+    	//System.out.println("Timer Å¬·¡½º¿¡¼­ scheduleInterrupt ½ÇÇà");
+		int delay = Stats.TimerTicks; //Áö¿¬½Ã°£(»ç¿ë½Ã°£) 500À¸·Î ±âº» ¼³Á¤µÇ¾îÀÖÀ½
+		delay += Lib.random(delay/10) - (delay/20); //Áö¿¬½Ã°£(»ç¿ë½Ã°£) °è»ê - ¹«½¼ °è»ê¹ıÀÌÁö?
 
-	privilege.interrupt.schedule(delay, "timer", timerInterrupt);
+		privilege.interrupt.schedule(delay, "timer", timerInterrupt); //ÀÎÅÍ·´Æ® ½ºÄÉÁì¸µ¿¡ Áö¿¬½Ã°£ Á¤º¸ ¹× Å¸ÀÌ¸Ó ÀÎÅÍ·´Æ® Àü´Ş
     }
 
-    private void scheduleAutoGraderInterrupt() {
-	privilege.interrupt.schedule(1, "timerAG", autoGraderInterrupt);
+    private void scheduleAutoGraderInterrupt() {//½ºÄÉÁì¸µ¿¡ autograder ÀÎÅÍ·´Æ® Á¤º¸ Àü´Ş ¸Ş¼Òµå
+    	//System.out.println("Timer Å¬·¡½º¿¡¼­ scheduleAutoGraderInterrupt ½ÇÇà");
+    	privilege.interrupt.schedule(1, "timerAG", autoGraderInterrupt); //autograder ÀÎÅÍ·´Æ® ½ºÄÉÁì¸µ¿¡ Áö¿¬½Ã°£ Á¤º¸ ¹× Å¸ÀÌ¸Ó ÀÎÅÍ·´Æ® Àü´Ş
     }
 
     private long lastTimerInterrupt;
@@ -88,3 +90,4 @@ public final class Timer {
     private Privilege privilege;
     private Runnable handler = null;
 }
+

@@ -65,10 +65,12 @@ public final class Stats {
     /**
      * The amount to advance simulated time after each user instructions is
      * executed.
+     * 각 사용자 명령이 실행된 후 시뮬레이션 시간을 앞당길 양입니다.
      */
     public static final int UserTick = 1;
     /**
      * The amount to advance simulated time after each interrupt enable.
+     * 각 인터럽트가 활성화된 후 시뮬레이션 시간을 앞당길 양입니다.
      */
     public static final int KernelTick = 10;
     /**
